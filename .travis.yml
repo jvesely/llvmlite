@@ -13,21 +13,54 @@ services:
 jobs:
   include:
     - env: PYVER=cp27-cp27mu ARCH=x64
+      arch: amd64
     - env: PYVER=cp35-cp35m  ARCH=x64
+      arch: amd64
     - env: PYVER=cp36-cp36m  ARCH=x64
+      arch: amd64
     - env: PYVER=cp37-cp37m  ARCH=x64
+      arch: amd64
     - env: PYVER=cp27-cp27mu ARCH=x32
+      arch: amd64
     - env: PYVER=cp35-cp35m  ARCH=x32
+      arch: amd64
     - env: PYVER=cp36-cp36m  ARCH=x32
+      arch: amd64
     - env: PYVER=cp37-cp37m  ARCH=x32
+      arch: amd64
+    - env: PYVER=cp27-cp27mu ARCH=ppc64le
+      arch: ppc64le
+    - env: PYVER=cp35-cp35m  ARCH=ppc64le
+      arch: ppc64le
+    - env: PYVER=cp36-cp36m  ARCH=ppc64le
+      arch: ppc64le
+    - env: PYVER=cp37-cp37m  ARCH=ppc64le
+      arch: ppc64le
 
 
 install:
-    - if [ "$ARCH" == "x64" ]; then DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64; else DOCKER_IMAGE=quay.io/pypa/manylinux1_i686; fi
+    - |
+      if [ "$ARCH" == "x64" ]; then
+        DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64;
+      elif [ "$ARCH" == "x32" ]; then
+        DOCKER_IMAGE=quay.io/pypa/manylinux1_i686;
+      elif [ "$ARCH" == "ppc64le" ]; then
+        DOCKER_IMAGE=quay.io/pypa/manylinux2014_ppc64le;
+      fi
     - docker pull $DOCKER_IMAGE
 
 script:
-    - ./buildscripts/manylinux1/docker_run_$ARCH.sh build_llvmlite.sh $PYVER
+    - |
+      if [ "$ARCH" == "x64" ]; then
+        export DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64;
+        ./buildscripts/manylinux1/docker_run_$ARCH.sh build_llvmlite.sh $PYVER
+      elif [ "$ARCH" == "x32" ]; then
+        export DOCKER_IMAGE=quay.io/pypa/manylinux1_i686;
+        ./buildscripts/manylinux1/docker_run_$ARCH.sh build_llvmlite.sh $PYVER
+      elif [ "$ARCH" == "ppc64le" ]; then
+        export DOCKER_IMAGE=quay.io/pypa/manylinux2014_ppc64le;
+        ./buildscripts/manylinux2014/docker_run_$ARCH.sh build_llvmlite.sh $PYVER
+      fi
 
 notifications:
     email: false
