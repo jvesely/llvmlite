@@ -1812,6 +1812,38 @@ class TestBuilderMisc(TestBase):
                 %"c" = alloca i32*, !dbg !0
             """)
 
+    def test_wrong_instruction_operands(self):
+        mod = ir.Module()
+        builder = ir.IRBuilder()
+
+        foo = ir.Function(mod, ir.FunctionType(ir.DoubleType(), [ir.DoubleType(), ir.DoubleType()]), "foo")
+        builder.position_at_end(foo.append_basic_block())
+        args = builder.function.args
+        s = builder.fadd(*args)
+        builder.ret(s)
+
+        bar = ir.Function(mod, ir.FunctionType(ir.DoubleType(), [ir.DoubleType(), ir.DoubleType()]), "bar")
+        builder.position_at_end(bar.append_basic_block())
+        with self.assertRaises(ValueError):
+            # args from different function
+            res = builder.fmul(s, s)
+
+    def test_wrong_function_arguments(self):
+        mod = ir.Module()
+        builder = ir.IRBuilder()
+
+        foo = ir.Function(mod, ir.FunctionType(ir.DoubleType(), [ir.DoubleType(), ir.DoubleType()]), "foo")
+        builder.position_at_end(foo.append_basic_block())
+        args = builder.function.args
+        s = builder.fadd(*args)
+        builder.ret(s)
+
+        bar = ir.Function(mod, ir.FunctionType(ir.DoubleType(), [ir.DoubleType(), ir.DoubleType()]), "bar")
+        builder.position_at_end(bar.append_basic_block())
+        with self.assertRaises(ValueError):
+            # args from different function
+            res = builder.fmul(*args)
+
 
 class TestTypes(TestBase):
 

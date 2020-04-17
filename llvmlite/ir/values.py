@@ -736,6 +736,10 @@ class _BaseArgument(NamedValue):
         return "<ir.%s %r of type %s>" % (self.__class__.__name__, self.name,
                                           self.type)
 
+    @property
+    def function(self):
+        return self.parent
+
     def add_attribute(self, attr):
         self.attributes.add(attr)
 

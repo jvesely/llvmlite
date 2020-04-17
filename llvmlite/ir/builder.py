@@ -349,6 +349,11 @@ class IRBuilder(object):
         self.position_at_end(bbend)
 
     def _insert(self, instr):
+        for op in instr.operands:
+            # Constants don't have parents, but Arguments do.
+            # Instructions have 'function' property.
+            if (hasattr(op, 'function') and op.function is not self.function):
+                raise ValueError("Trying to use operand from different function (%s, %s)" % (op.function.name, self.function.name))
         if self.debug_metadata is not None and 'dbg' not in instr.metadata:
             instr.metadata['dbg'] = self.debug_metadata
         self._block.instructions.insert(self._anchor, instr)
